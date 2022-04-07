@@ -200,8 +200,7 @@ class BiFPNModule(nn.Module):
         for in_tensor in inputs:
             inputs_clone.append(in_tensor.clone())
         for i in range(levels - 1, 0, -1):
-            pathtd[i - 1] = w1[0,kk]*pathtd[i - 1] + w1[1,kk]*F.interpolate(
-                pathtd[i], scale_factor=2, mode='nearest')
+            pathtd[i - 1] = w1[0,kk]*pathtd[i - 1] + w1[1,kk]*F.interpolate(pathtd[i], scale_factor=2, mode='nearest')
             pathtd[i - 1] = self.bifpn_convs[kk](pathtd[i - 1])
             kk=kk+1
         jj=kk
