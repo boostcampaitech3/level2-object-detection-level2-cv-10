@@ -32,10 +32,8 @@ model = dict(
         anchor_generator=dict(
             type='AnchorGenerator',
             scales=[8],
-            # ratios=[0.5, 1.0, 2.0],
-            # strides=[4, 8, 16, 32, 64]),
-            ratios=[0.5, 0.7, 1.0, 1.5, 2.0], # anchor box ratio 여러 개
-            strides=[4, 8, 16, 32, 64]), # 작은 물체를 위한 stride 2 추가
+            ratios=[0.5, 0.7, 1.0, 1.5, 2.0], # add anchor box ratios
+            strides=[4, 8, 16, 32, 64]),
         bbox_coder=dict(
             type='DeltaXYWHBBoxCoder',
             target_means=[.0, .0, .0, .0],
@@ -54,12 +52,12 @@ model = dict(
             featmap_strides=[4, 8, 16, 32]),
         bbox_head=[
             dict(
-                type='Shared4Conv1FCBBoxHead', # edit
+                type='Shared4Conv1FCBBoxHead', # edit bbox_head
                 in_channels=256,
                 conv_out_channels=256, # add
                 fc_out_channels=1024,
                 roi_feat_size=7,
-                num_classes=10, # num_classes를 모두 바꿔준다.
+                num_classes=10,
                 bbox_coder=dict(
                     type='DeltaXYWHBBoxCoder',
                     target_means=[0., 0., 0., 0.],
@@ -74,12 +72,12 @@ model = dict(
                 loss_bbox=dict(type='GIoULoss',
                                loss_weight=10.0)), # edit
             dict(
-                type='Shared4Conv1FCBBoxHead', # edit
+                type='Shared4Conv1FCBBoxHead', # edit bbox_head
                 in_channels=256,
                 conv_out_channels=256, # add
                 fc_out_channels=1024,
                 roi_feat_size=7,
-                num_classes=10, # num_classes를 모두 바꿔준다.
+                num_classes=10,
                 bbox_coder=dict(
                     type='DeltaXYWHBBoxCoder',
                     target_means=[0., 0., 0., 0.],
@@ -94,12 +92,12 @@ model = dict(
                 loss_bbox=dict(type='GIoULoss',
                                loss_weight=10.0)), # edit
             dict(
-                type='Shared4Conv1FCBBoxHead', # edit
+                type='Shared4Conv1FCBBoxHead', # edit bbox_head
                 in_channels=256,
                 conv_out_channels=256, # add
                 fc_out_channels=1024,
                 roi_feat_size=7,
-                num_classes=10, # num_classes를 모두 바꿔준다.
+                num_classes=10,
                 bbox_coder=dict(
                     type='DeltaXYWHBBoxCoder',
                     target_means=[0., 0., 0., 0.],

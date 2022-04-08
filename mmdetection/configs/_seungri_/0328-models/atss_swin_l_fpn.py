@@ -24,14 +24,14 @@ model = dict(
         init_cfg=dict(type='Pretrained', checkpoint=pretrained)),
     neck=dict(
         type='FPN',
-        in_channels=[192, 384, 768, 1536],
+        in_channels=[192, 384, 768, 1536], # for swin transformer
         out_channels=256,
         start_level=1,
         add_extra_convs='on_output',
         num_outs=5),
     bbox_head=dict(
         type='ATSSHead',
-        num_classes=10, # 변경!
+        num_classes=10,
         in_channels=256,
         stacked_convs=4,
         feat_channels=256,
@@ -67,7 +67,6 @@ model = dict(
         nms=dict(type='nms', iou_threshold=0.6),
         max_per_img=100))
 # optimizer
-# optimizer = dict(type='SGD', lr=0.01, momentum=0.9, weight_decay=0.0001)
 optimizer = dict(
     _delete_=True,
     type='AdamW',

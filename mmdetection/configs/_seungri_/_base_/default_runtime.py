@@ -1,14 +1,14 @@
-checkpoint_config = dict(max_keep_ckpts=3, interval=1) # max 저장 개수 지정
+checkpoint_config = dict(max_keep_ckpts=3, interval=1) # max number of saving checkpoints
 # yapf:disable
 log_config = dict(
     interval=50,
     hooks=[
         dict(type='TextLoggerHook'),
         # dict(type='TensorboardLoggerHook')
-        # mlflow
+        # for mlflow
         # dict(
         #     type='MlflowLoggerHook',
-        #     exp_name='0403_atss_sgd',
+        #     exp_name='exp_name',
         # )
     ])
 # yapf:enable

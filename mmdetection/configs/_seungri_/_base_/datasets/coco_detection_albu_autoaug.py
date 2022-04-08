@@ -53,8 +53,7 @@ albu_train_transforms = [
 train_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(type='LoadAnnotations', with_bbox=True),
-    # dict(type='Resize', img_scale=(800, 800), keep_ratio=True), # 이미지 size!
-    # dict(type='Pad', size_divisor=32),
+    # add auto augmentation
     dict(
         type='AutoAugment',
         policies=[[
@@ -115,7 +114,7 @@ test_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(
         type='MultiScaleFlipAug',
-        img_scale=(1024, 1024), # 800 -> 1024로 변경해봄
+        img_scale=(1024, 1024), # 800 -> 1024
         flip=False,
         transforms=[
             dict(type='Resize', keep_ratio=True),
@@ -128,25 +127,25 @@ test_pipeline = [
 ]
 
 data = dict(
-    samples_per_gpu=4, # batch size 2 -> 4로 변경
+    samples_per_gpu=4, # batch size 2 -> 4
     workers_per_gpu=2,
     train=dict(
         type=dataset_type,
-        classes=classes, # 우리 데이터대로 추가
-        ann_file=data_root + 'train0.json', # 아직 CV 안 나눴으므로 전체 json 넘김
-        img_prefix=data_root, # 수정
+        classes=classes,
+        ann_file=data_root + 'train0.json', # fold0
+        img_prefix=data_root,
         pipeline=train_pipeline),
     val=dict(
         type=dataset_type,
-        classes=classes, # 우리 데이터대로 추가
-        ann_file=data_root + 'val0.json', # 수정
-        img_prefix=data_root, # 수정
+        classes=classes,
+        ann_file=data_root + 'val0.json', # fold0
+        img_prefix=data_root,
         pipeline=test_pipeline),
     test=dict(
         type=dataset_type,
-        classes=classes, # 우리 데이터대로 추가
-        ann_file=data_root + 'test.json', # 수정
-        img_prefix=data_root, # 수정
+        classes=classes,
+        ann_file=data_root + 'test.json',
+        img_prefix=data_root,
         pipeline=test_pipeline))
 
 evaluation = dict(interval=1, metric='bbox', classwise=True, save_best='bbox_mAP_50')

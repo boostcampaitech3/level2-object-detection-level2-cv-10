@@ -3,4 +3,4 @@ _base_ = [
     '../_base_/datasets/coco_detection_albu.py',
     '../_base_/schedules/schedule_cosann_adamw.py', '../_base_/default_runtime.py'
 ]
-# swin과 rfp 결합이 어렵다.. 보류
+# swin과 rfp 결합이 어려워서 보류한다.

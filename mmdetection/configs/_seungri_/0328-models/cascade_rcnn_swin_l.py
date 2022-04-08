@@ -4,9 +4,9 @@ _base_ = [
     '../_base_/schedules/schedule_1x.py', '../_base_/default_runtime.py'
 ]
 pretrained = 'https://github.com/SwinTransformer/storage/releases/download/v1.0.0/swin_large_patch4_window7_224_22k.pth'
-model = dict( # type 부분은 없애도 된다. 이미 위에서 불러왔으므로.
+model = dict(
     backbone=dict(
-        _delete_=True, # 기존 backbone의 config 삭제
+        _delete_=True,
         type='SwinTransformer',
         embed_dims=192,
         depths=[2, 2, 18, 2],
@@ -23,10 +23,10 @@ model = dict( # type 부분은 없애도 된다. 이미 위에서 불러왔으�
         with_cp=False,
         convert_weights=True,
         init_cfg=dict(type='Pretrained', checkpoint=pretrained)),
-    neck=dict(in_channels=[192, 384, 768, 1536])) # neck의 in_channels = backbone에서의 feature 의 channel 수 -> 이걸 복사해서 가자!
-
+    neck=dict(in_channels=[192, 384, 768, 1536]))
+# optimizer
 optimizer = dict(
-    _delete_=True, # 그대로 둔다! (마찬가지로)
+    _delete_=True,
     type='AdamW',
     lr=0.0001,
     betas=(0.9, 0.999),
