@@ -24,6 +24,7 @@ model = dict(
             type='FPN',
             in_channels=[192, 384, 768, 1536],
             out_channels=256,
+            # for heavy augmentation, next two lines should be deleted.
             # start_level=1,
             # add_extra_convs='on_output',
             num_outs=5),
@@ -68,4 +69,5 @@ model = dict(
         nms=dict(type='nms', iou_threshold=0.6),
         max_per_img=100))
 
+# change precision
 fp16 = dict(loss_scale=512.0)
