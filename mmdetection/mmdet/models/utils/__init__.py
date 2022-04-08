@@ -17,6 +17,7 @@ from .se_layer import DyReLU, SELayer
 from .transformer import (DetrTransformerDecoder, DetrTransformerDecoderLayer,
                           DynamicConv, PatchEmbed, Transformer, nchw_to_nlc,
                           nlc_to_nchw)
+from .sepc_dconv import SEPCConv, ModulatedSEPCConv
 
 __all__ = [
     'ResLayer', 'gaussian_radius', 'gen_gaussian_target',
@@ -29,3 +30,5 @@ __all__ = [
     'nlc_to_nchw', 'pvt_convert', 'sigmoid_geometric_mean',
     'preprocess_panoptic_gt', 'DyReLU'
 ]
+
+__all__ += ['SEPCConv', 'ModulatedSEPCConv']
