@@ -20,7 +20,7 @@ model = dict(
                 in_channels=256,
                 fc_out_channels=1024,
                 roi_feat_size=7,
-                num_classes=10, # num_classes를 모두 바꿔준다.
+                num_classes=10,
                 bbox_coder=dict(
                     type='DeltaXYWHBBoxCoder',
                     target_means=[0., 0., 0., 0.],
@@ -72,7 +72,6 @@ log_config = dict(
     interval=50,
     hooks=[
         dict(type='TextLoggerHook'),
-        # dict(type='TensorboardLoggerHook')
         # mlflow
         dict(
             type='MlflowLoggerHook',

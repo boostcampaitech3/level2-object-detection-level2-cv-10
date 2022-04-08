@@ -33,16 +33,15 @@ model = dict(
     ],
     bbox_head=dict(
         type='ATSSHead',
-        num_classes=10, # 변경!
+        num_classes=10,
         in_channels=256,
         stacked_convs=4,
         feat_channels=256,
         anchor_generator=dict(
             type='AnchorGenerator',
-            # ratios=[1.0],
-            ratios=[0.5, 0.7, 1.0, 1.5, 2.0], # anchor box ratio 여러 개
+            ratios=[0.5, 0.7, 1.0, 1.5, 2.0], # add anchor box ratios
             octave_base_scale=8,
-            scales_per_octave=3, #1,
+            scales_per_octave=3,
             strides=[4, 8, 16, 32, 64]),
         bbox_coder=dict(
             type='DeltaXYWHBBoxCoder',
@@ -74,7 +73,6 @@ log_config = dict(
     interval=50,
     hooks=[
         dict(type='TextLoggerHook'),
-        # dict(type='TensorboardLoggerHook')
         # mlflow
         dict(
             type='MlflowLoggerHook',

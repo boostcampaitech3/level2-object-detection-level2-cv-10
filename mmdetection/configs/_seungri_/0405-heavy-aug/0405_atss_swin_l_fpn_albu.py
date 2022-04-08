@@ -26,12 +26,13 @@ model = dict(
         type='FPN',
         in_channels=[192, 384, 768, 1536],
         out_channels=256,
+        # for heavy augmentation, next two lines should be deleted.
         # start_level=1,
         # add_extra_convs='on_output',
         num_outs=5),
     bbox_head=dict(
         type='ATSSHead',
-        num_classes=10, # 변경!
+        num_classes=10,
         in_channels=256,
         stacked_convs=4,
         feat_channels=256,
@@ -40,7 +41,7 @@ model = dict(
             ratios=[1.0],
             octave_base_scale=8,
             scales_per_octave=1,
-            strides=[4, 8, 16, 32, 64]), # 변경!
+            strides=[4, 8, 16, 32, 64]), # halve strides
         bbox_coder=dict(
             type='DeltaXYWHBBoxCoder',
             target_means=[.0, .0, .0, .0],
@@ -87,7 +88,6 @@ log_config = dict(
     interval=50,
     hooks=[
         dict(type='TextLoggerHook'),
-        # dict(type='TensorboardLoggerHook')
         # mlflow
         dict(
             type='MlflowLoggerHook',

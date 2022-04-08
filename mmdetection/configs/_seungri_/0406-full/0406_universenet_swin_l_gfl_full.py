@@ -59,7 +59,7 @@ albu_train_transforms = [
 train_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(type='LoadAnnotations', with_bbox=True),
-    dict(type='Resize', img_scale=(800, 800), keep_ratio=True), # 이미지 size!
+    dict(type='Resize', img_scale=(800, 800), keep_ratio=True),
     dict(type='Pad', size_divisor=32),
     dict(
         type='Albu',
@@ -72,7 +72,6 @@ train_pipeline = [
             filter_lost_elements=True),
         keymap={
             'img': 'image',
-            # 'gt_masks': 'masks', 우리는 mask 정보 없음
             'gt_bboxes': 'bboxes'
         },
         update_pad_shape=False,
@@ -81,7 +80,6 @@ train_pipeline = [
     dict(type='DefaultFormatBundle'),
     dict(
         type='Collect',
-        # keys=['img', 'gt_bboxes', 'gt_labels', 'gt_masks'],
         keys=['img', 'gt_bboxes', 'gt_labels'],
         meta_keys=('filename', 'ori_shape', 'img_shape', 'img_norm_cfg',
                    'pad_shape', 'scale_factor'))
@@ -91,7 +89,7 @@ test_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(
         type='MultiScaleFlipAug',
-        img_scale=(800, 800), # 우리 데이터에 맞춰서
+        img_scale=(800, 800),
         flip=False,
         transforms=[
             dict(type='Resize', keep_ratio=True),
@@ -104,29 +102,27 @@ test_pipeline = [
 ]
 
 data = dict(
-    samples_per_gpu=4, # batch size 2 -> 4로 변경
+    samples_per_gpu=4,
     workers_per_gpu=2,
     train=dict(
         type=dataset_type,
-        classes=classes, # 우리 데이터대로 추가
-        ann_file=data_root + 'train.json', # 아직 CV 안 나눴으므로 전체 json 넘김
-        img_prefix=data_root, # 수정
+        classes=classes,
+        ann_file=data_root + 'train.json', # no fold (full)
+        img_prefix=data_root,
         pipeline=train_pipeline),
     test=dict(
         type=dataset_type,
-        classes=classes, # 우리 데이터대로 추가
-        ann_file=data_root + 'test.json', # 수정
-        img_prefix=data_root, # 수정
+        classes=classes,
+        ann_file=data_root + 'test.json',
+        img_prefix=data_root,
         pipeline=test_pipeline))
 
 evaluation = dict(interval=1, metric='bbox', classwise=True, save_best='bbox_mAP_50')
-
 
 log_config = dict(
     interval=50,
     hooks=[
         dict(type='TextLoggerHook'),
-        # dict(type='TensorboardLoggerHook')
         # mlflow
         dict(
             type='MlflowLoggerHook',
@@ -134,10 +130,10 @@ log_config = dict(
         )
     ])
 
-# loss_cls와 grad_norm 폭발하는 문제 때문에 max_norm 조정
+# edit grad_clip - loss_cls와 grad_norm 폭발하는 문제 해결
 optimizer_config = dict(grad_clip=dict(max_norm=10, norm_type=2))
 
-# 수정
+# edit lr_config - add step 9
 lr_config = dict(
     policy='step',
     warmup='linear',
