@@ -28,13 +28,13 @@
 여러분에 의해 만들어진 우수한 성능의 모델은 쓰레기장에 설치되어 정확한 분리수거를 돕거나, 어린아이들의 분리수거 교육 등에 사용될 수 있을 것입니다. 부디 지구를 위기로부터 구해주세요! 🌎
 <br>
 
-## Our team's contributions
+## Our Team's Contributions
 ```
-- Cross Validation - Stratified Goup Fold
+- Cross Validation - Stratified Group Fold
 - Ensemble 코드
 - BiFPN 추가
 - Universenet 추가
-- YOLOX, YOLOv5
+- YOLOv5
 - EfficientDet
 ```
 <br>
@@ -80,50 +80,59 @@ Classification task에 비해서 translation variance 문제가 중요한 object
 ```
 
 ## Ensemble    
-처음에는 NMS와 Soft-NMS를 이용해 앙상블을 했고 
-ㄹ단일 모델
+NMS와 Soft-NMS같이 redundant box를 제거하는 앙상블 기법보다 모든 예측 박스를 사용하는 WBF 알고리즘이 가장 좋은 성능을 보여주었고 단일모델보다 `6 mAP` 가량 높은 점수를 달성 하였다. 다양한 `iou_threshold`와 `score_threshold`를 바꿔가며 실험을 진행하였고 결과적으로 `iou_threshold=0.05`, `score_threshold=0.01`이 가장 좋은 성능을 보여주었다. 중복 박스를 제거하는 NMS와 Soft-NMS와 달리 WBF는 예측 박스들의 분포와 parameter값들에 따라 결과가 상당히 민감하게 반응 하였다. 하지만 다른 앙상블 기법에 비해 parameter와 성능의 관계를 파악하기가 어려웠다. 예를들어 `score_threshold=0.01`은 confidence score이 0.01 이하인 예측값들을 지워주는데 confidence score이 0.01이면 상당히 퀄리티가 낮은 예측값이라고 생각해 `score_threshold`를 높여줬지만 성능이 하락하였다. 최종적으로 40개 이상의 단일 모델을 앙상블 하였고 그 결과 팀 최고점수를 달성하였다.
 
 
-## Conclusion
+## Further Improvements   
+여러가지 모델들을 사용하여 실험을 진행해 봤지만, 다른 팀과 비교해 보았을 때, 같은 epoch임에도 불구하고 성능 차이가 최대 5%정도 크게 벌어졌다. 이는 cross validation 진행시 fold의 문제이거나, 실험을 진행할 시에 seed를 1333로 고정시켜 줬었는데, 해당과정들에서 다른 팀보다 덜 잘 분포된 training set이 만들어져서 점수가 낮게 나오지 않았나 생각한다.
 
+Yolo v5 가 상당한 성능이 나왔음에도 앙상블 결과 큰 성능향상이 없었다. 1,2 등 팀은 비교적 적은 모델로 앙상블을 진행했다는 것(Yolov5, Swin-Cascade 기반 모델)을 고려할 때 너무 많은 모델로 앙상블을 한게 오히려 성능에 악영향을 끼쳤을 수도 있을 것 같다.
+
+다른 팀들보다 단일모델의 성능이 떨어지는 경향이 있었다. 점수가 정체됐을때 데이터로 돌아가서 EDA를 진행하면서 인사이트를 얻어서 다른 방식으로 접근 했었으면 더 좋았을 것 같다.
+
+또한 Leader board와 잘 align되는 validation set을 찾는 것이 중요하다. Stratified group k-fold에서 class 분포 뿐만 아니라 bbox ratio, bbox area, bbox count 등으로 다양하게 실험했으면 더 좋았을 것 같다.
+
+WBF 앙상블에서 주로 `iou_threshold`와 `score_threshold`를 바꿔주면서 실험을 진행하였는데 다음 대회에서는 random seed, snapshot ensemble, SWA등 조금 더 다양한 앙상블 기법들을 시도해 볼 것이다. 
+
+Box ratio 와 area를 기반으로 outlier 를 제거했었는데 오히려 성능이 떨어졌었다. 해당 사유를 정확하게 파악하지 못해서 아쉽다.
 
 
 ## Experiments
-| Index | Property | Name | LB Score | Submitter | Date |
-| --- | --- | --- | --- | --- | --- |
-| 1 | Single-2stage | Cascade R-CNN / Swin L / FPN / fold0 / inf 800 | 0.6177 | 유승리 캠퍼 | 2022/03/29 |
-| 2 | Single-2stage | Cascade R-CNN / Swin L / FPN / fold0 / inf 1024 | 0.6205 | 유승리 캠퍼 | 2022/03/29 |
-| 3 | Ensemble | 01 / 02 / inf 800, 1024 // nms 0.55 | 0.6423 | 이창진 캠퍼 | 2022/03/29 |
-| 4 | Single-2stage | Cascade R-CNN / Swin L / PAFPN / fold1 / Train 1024 / inf 1024 | 0.6157 | 이창진 캠퍼 | 2022/03/30 |
-| 5 | Single-2stage | Cascade R-CNN / Swin L / PAFPN / fold0 / Train 800 / inf 800 | 0.607 | 유승리 캠퍼 | 2022/03/30 |
-| 6 | Single-2stage | Cascade R-CNN / Swin L / PAFPN / fold0 / Train 800 / inf 1024 | 0.6104 | 유승리 캠퍼 | 2022/03/30 |
-| 7 | Ensemble | 01 / 02 / 05 / 06 // nms 055 | 0.6472 | 유승리 캠퍼 | 2022/03/30 |
-| 8 | Ensemble | 01 / 02 / 05 / 06 / YoloX / WBF 0.55 skip 0.1 | 0.6324 |  | 2022/03/30 |
-| 9 | Ensemble | 01 / 02 / 05 / 06 / YoloX / nms 0.55 | 0.6361 |  | 2022/03/30 |
-| 10 | Ensemble | 14개 모델 / WBF 055, skip 0.1 | 0.6813 | 이창진 캠퍼 | 2022/03/31 |
-| 11 | Ensemble | 16개 모델 / WBF 05, skip 0.08 | 0.685 | 이창진 캠퍼 | 2022/03/31 |
-| 12 | Single-2stage | Cascade R-CNN / Swin L / FPN / fold1 / inf 1024 |  |  | 2022/03/31 |
-| 13 | Single-2stage | Cascade R-CNN / Swin L / FPN / fold2 / inf 1024 |  |  | 2022/03/31 |
-| 14 | Ensemble | 01 / 02 / 12-1 / 12-2 / 13 // nms 055 | 0.6539 | 유승리 캠퍼 | 2022/03/31 |
-| 15 | Single-2stage | Faster_RCNN / Swin_L / FPN / fold0 / inf 512 | 0.5843 | 심준교 캠퍼 | 2022/03/28 |
-| 16 | Single-2stage | Faster_RCNN / Swin_L / PAFPN / fold0 / inf 1024 | 0.6241 | 심준교 캠퍼 | 2022/04/01 |
-| 17 | Single-2stage | Faster_RCNN / Swin_L / PAFPN / fold0 / inf 800 |  | 심준교 캠퍼 | 2022/04/01 |
-| 18 | Ensemble | 22개 모델 / WBF 0.5, skip 0.1 | 0.6894 | 이창진 캠퍼 | 2022/04/01 |
-| 19 | Ensemble | 23개 모델 / WBF 0.55, skip 0.1 | 0.6914 | 이창진 캠퍼 | 2022/04/01 |
-| 20 | Ensemble | 23개 모델 / WBF 0.6, skip 0.1 | 0.6904 | 이창진 캠퍼 | 2022/04/01 |
-| 21 | Ensemble | 23개 모델 / WBF 0.4, skip 0.1 | 0.6778 | 이창진 캠퍼 | 2022/04/01 |
-| 22 | Ensemble | 23개 모델 / WBF 0.55, skip 0.08 | 0.6931 | 이창진 캠퍼 | 2022/04/01 |
-| 23 | Ensemble | 23개 모델 / WBF 0.55, skip 0.06 | 0.6945 | 이창진 캠퍼 | 2022/04/01 |
-| 24 | Single-2stage | Faster_RCNN / Swin_L / PAFPN / fold0 / inf1024 + outlier 제거  | 0.5962 | 이창진 캠퍼 | 2022/04/02 |
-| 25 | Ensemble | Multi-stage Ensemble | 0.676 | 이창진 캠퍼 | 2022/04/02 |
-| 26 | Ensemble | 25개 모델 / WBF 0.55, skip 0.1 / model_weights | 0.6931 | 이창진 캠퍼 | 2022/04/02 |
-| 27 | Ensemble | 25개 모델 / WBF 0.55, skip 0.06 |  |  | 2022/04/02 |
-| 28 | Ensemble | 27개 모델 / WBF 0.55, skip 0.05 |  |  | 2022/04/02 |
-| 29 | Ensemble | 27개 모델 / WBF 0.55, skip 0.05 / model_weights | 0.6984 | 이창진 캠퍼 | 2022/04/02 |
-| 30 | Single-1stage | Yolov5 | 0.5468 | 김하준 캠퍼 | 2022/04/04 |
-| 31 | Single-1stage | Yolov5 | 0.5907 | 김하준 캠퍼 | 2022/04/05 |
-| 32 | Single-1stage | ATSS / Swin-L / FPN | 0.5563 | 유승리 캠퍼 | 2022/03/28 |
-| 33 | Single-2stage | Cascade R-CNN / Swin-L / FPN / bbox head / full | 0.6246 | 유승리 캠퍼 | 2022/04/04 |
-| 34 | Single-2stage | Cascade R-CNN / Swin-L / FPN / focal loss / fold0 | 0.6243 | 유승리 캠퍼 | 2022/04/04 |
-| 35 | Single-2stage | Cascade R-CNN / Swin-L / FPN / focal loss / full | 0.6368 | 유승리 캠퍼 | 2022/04/04 |
-| 36 | Single-1stage | UniverseNet / Swin-L / FPN+SEPC / fold0 | 0.5684 | 유승리 캠퍼 | 2022/04/05 |
+| Index | Property | Name | LB Score |
+| --- | --- | --- | --- |
+| 1 | Single-2stage | Cascade R-CNN / Swin L / FPN / fold0 / inf 800 | 0.6177 |
+| 2 | Single-2stage | Cascade R-CNN / Swin L / FPN / fold0 / inf 1024 | 0.6205 |
+| 3 | Ensemble | 01 / 02 / inf 800, 1024 // nms 0.55 | 0.6423 |
+| 4 | Single-2stage | Cascade R-CNN / Swin L / PAFPN / fold1 / Train 1024 / inf 1024 | 0.6157 |
+| 5 | Single-2stage | Cascade R-CNN / Swin L / PAFPN / fold0 / Train 800 / inf 800 | 0.607 |
+| 6 | Single-2stage | Cascade R-CNN / Swin L / PAFPN / fold0 / Train 800 / inf 1024 | 0.6104 |
+| 7 | Ensemble | 01 / 02 / 05 / 06 // nms 055 | 0.6472 |
+| 8 | Ensemble | 01 / 02 / 05 / 06 / YoloX / WBF 0.55 skip 0.1 | 0.6324 |
+| 9 | Ensemble | 01 / 02 / 05 / 06 / YoloX / nms 0.55 | 0.6361 |
+| 10 | Ensemble | 14개 모델 / WBF 055, skip 0.1 | 0.6813 |
+| 11 | Ensemble | 16개 모델 / WBF 05, skip 0.08 | 0.685 |
+| 12 | Single-2stage | Cascade R-CNN / Swin L / FPN / fold1 / inf 1024 | - |
+| 13 | Single-2stage | Cascade R-CNN / Swin L / FPN / fold2 / inf 1024 | - |
+| 14 | Ensemble | 01 / 02 / 12-1 / 12-2 / 13 // nms 055 | 0.6539 |
+| 15 | Single-2stage | Faster_RCNN / Swin_L / FPN / fold0 / inf 512 | 0.5843 |
+| 16 | Single-2stage | Faster_RCNN / Swin_L / PAFPN / fold0 / inf 1024 | 0.6241 |
+| 17 | Single-2stage | Faster_RCNN / Swin_L / PAFPN / fold0 / inf 800 | - |
+| 18 | Ensemble | 22개 모델 / WBF 0.5, skip 0.1 | 0.6894 |
+| 19 | Ensemble | 23개 모델 / WBF 0.55, skip 0.1 | 0.6914 |
+| 20 | Ensemble | 23개 모델 / WBF 0.6, skip 0.1 | 0.6904 |
+| 21 | Ensemble | 23개 모델 / WBF 0.4, skip 0.1 | 0.6778 |
+| 22 | Ensemble | 23개 모델 / WBF 0.55, skip 0.08 | 0.6931 |
+| 23 | Ensemble | 23개 모델 / WBF 0.55, skip 0.06 | 0.6945 |
+| 24 | Single-2stage | Faster_RCNN / Swin_L / PAFPN / fold0 / inf1024 + outlier 제거  | 0.5962 |
+| 25 | Ensemble | Multi-stage Ensemble | 0.676 |
+| 26 | Ensemble | 25개 모델 / WBF 0.55, skip 0.1 / model_weights | 0.6931 |
+| 27 | Ensemble | 25개 모델 / WBF 0.55, skip 0.06 | - |
+| 28 | Ensemble | 27개 모델 / WBF 0.55, skip 0.05 | - |
+| 29 | Ensemble | 27개 모델 / WBF 0.55, skip 0.05 / model_weights | 0.6984 |
+| 30 | Single-1stage | Yolov5 | 0.5468 |
+| 31 | Single-1stage | Yolov5 | 0.5907 |
+| 32 | Single-1stage | ATSS / Swin-L / FPN | 0.5563 |
+| 33 | Single-2stage | Cascade R-CNN / Swin-L / FPN / bbox head / full | 0.6246 |
+| 34 | Single-2stage | Cascade R-CNN / Swin-L / FPN / focal loss / fold0 | 0.6243 |
+| 35 | Single-2stage | Cascade R-CNN / Swin-L / FPN / focal loss / full | 0.6368 |
+| 36 | Single-1stage | UniverseNet / Swin-L / FPN+SEPC / fold0 | 0.5684 |
