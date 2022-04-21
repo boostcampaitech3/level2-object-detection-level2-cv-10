@@ -16,7 +16,7 @@
 * 강천성 멘토님
 <br>
 
-## Compatition : 재활용 품목 분류를 위한 Object Detection
+## Competition : 재활용 품목 분류를 위한 Object Detection
 바야흐로 대량 생산, 대량 소비의 시대. 우리는 많은 물건이 대량으로 생산되고, 소비되는 시대를 살고 있습니다. 하지만 이러한 문화는 '쓰레기 대란', '매립지 부족'과 같은 여러 사회 문제를 낳고 있습니다.
 
 ![image](https://user-images.githubusercontent.com/71958885/164008385-32e7e2c7-e8d3-4661-bcc5-9775910a21a8.png)
@@ -28,14 +28,65 @@
 여러분에 의해 만들어진 우수한 성능의 모델은 쓰레기장에 설치되어 정확한 분리수거를 돕거나, 어린아이들의 분리수거 교육 등에 사용될 수 있을 것입니다. 부디 지구를 위기로부터 구해주세요! 🌎
 <br>
 
-## Our team's contribution
+## Our team's contributions
 ```
 - Cross Validation - Stratified Goup Fold
 - Ensemble 코드
 - BiFPN 추가
 - Universenet 추가
+- YOLOX, YOLOv5
+- EfficientDet
 ```
 <br>
+
+## Model Evaluation
+
+### Cross-Validation Strategy
+
+Validation mAP와 Public LB score의 mAP를 align시키기 위해 train set과 validation set이 비슷한 class 비율을 가지도록 scikit-learn에서 제공하는 `Stratified Group K Fold`를 사용하였다. 초반에 실험할때는 Fold 0으로 실험을 진행하였고 성능이 좋은 단일모델이 나오면 다른 fold에 적용을 하여 추후 앙상블 단계에서 큰 성능 향상을 가져다주었다. 또한 평균적으로 20 epochs 이내에 overfitting이 발생한다는 것을 관찰하고 validation set없이 전체 fold에 대해서 훈련을 진행하였고 public LB에서도 좋은 결과를 보였다.
+
+### 1-stage  
+
+YOLOX, YOLOv5, EfficientDet, Universenet, TOOD, ATSS 등 다양한 1-stage 모델들을 시도해 보았다. mmdetection 라이브러리에 제공되지 않는 모델들이 많아서 해당 repository에서 코드를 가져와서 훈련을 진행하였다.
+
+- YOLOX & YOLOv5
+YOLOX와 YOLOv5는 다른 모델들에 비해서 비교적 학습시간이 오래 걸렸지만 2-stage 모델들보다 LB score가 그렇게 좋지 않았다. 하지만 2-stage 모델들보다 비교적 small object AP가 높아 앙상블할때 모델 다양성에 기여를 했다. 
+
+- UniverseNet & ATSS
+UniverseNet과 ATSS는 backbone으로 Swin-L을 사용했을 때, heavy augmentation 적용 시 학습이 되지 않는 현상이 발생하였다. 따라서 이를 해결하기 위해서 neck(FPN)에서 `start_level`, `add_extra_convs`를 삭제하였다. 또한, 연산 속도를 높이기 위해 fp16을 적용하였다. 그리고 두 경우 모두 Cascade R-CNN보다 small과 medium을 더 잘 detect 하였지만, mAP50 결과는 좋지 않았다. 또한 ATSS 모델에서 추가적인 anchor box ratio를 추가해주었다.
+
+- EfficientDet
+EfficientDet은 backbone으로 EfficientNet, Neck으로 bifpn을 사용했다. 하지만 다른 모델들에 비해 좋은 성능을 보이지 못했다.
+
+- TOOD
+대회 후반부에 TOOD모델이 작은 물체에 대한 성능이 매우 좋다고 들어서 적용해봤고 시도한 모든 모델중에 small과 medium object에 대한 AP가 가장 높았다.
+
+
+### 2-stage
+Backbone 모델은 주로 Swin Transformer를 사용했다. ResNet등 다른 backbone들을 시도해보았지만 트랜스포머 기반이 가장 성능이 우수했다. Neck 으로는 FPN, PAFPN, BiFPN 등을 시도했지만 성능 차이는 크지 않았다. Detector 모델은 Cascade RCNN, Faster RCNN 를 시도했는데 Cascade RCNN의 성능이 조금 더 좋았다. EDA를 진행하며 object의 box ratio 분포가 다양하다는걸 관찰했고 기존의 베이스라인에 있던 anchor box ratio 0.5, 1, 2.0 외에 0.7과 1.5를 추가하였다. 또한 class imbalance문제를 해결하기 위해서 예측하기 힘든 물체에 더 포커스를 두는 focal loss를 Cascade R-CNN에 적용했고 그 결과 단일 모델 성능이 가장 좋았다.
+
+### Heavy Augmentation
+Classification task에 비해서 translation variance 문제가 중요한 object detection task에서는 모델의 capacity를 키워주는것이 중요하다고 판단했다. 또한 Kaggle등 대회 수상자들의 discussion을 살펴보았을때 heavy augmentation이 좋은 결과를 가져다 준다는것을 알았고 이번 대회에서 heavy augmentation을 적용한 결과 성능 향상을 가져다주었다. Albumentation 라이브러리를 사용하였고 공통적으로 사용한 augmentation 기법은 아래와 같다.
+
+```
+1. ShiftScaleRotate
+2. RandomBrightnessContrast
+3. RGBShift
+4. HueSaturationValue
+5. JpegCompression
+6. ChannelShuffle
+7. MedianBlur
+8. CLAHE
+```
+
+## Ensemble    
+처음에는 NMS와 Soft-NMS를 이용해 앙상블을 했고 
+ㄹ단일 모델
+
+
+## Conclusion
+
+
 
 ## Experiments
 | Index | Property | Name | LB Score | Submitter | Date |
