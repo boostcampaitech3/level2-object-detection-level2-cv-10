@@ -37,6 +37,15 @@ Test set의 mAP50(Mean Average Precision)
 - YOLOv5
 - EfficientDet
 ```
+
+### MMDetection
+[>> 개인별 config 폴더](https://github.com/boostcampaitech3/level2-object-detection-level2-cv-10/tree/main/mmdetection/configs)
+
+[>> UniverseNet 추가](https://github.com/boostcampaitech3/level2-object-detection-level2-cv-10/tree/main/mmdetection/mmdet/models)
+
+### YOLOv5
+[>> YOLOv5 폴더](https://github.com/boostcampaitech3/level2-object-detection-level2-cv-10/tree/main/yolov5)
+
 <br>
 
 ## Model Evaluation
