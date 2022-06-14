@@ -28,7 +28,7 @@ Test set의 mAP50(Mean Average Precision)
 
 <br>
 
-## Our Team's Contributions
+## Main Contributions
 ```
 - Cross Validation - Stratified Group Fold
 - Ensemble 코드
@@ -54,7 +54,9 @@ Test set의 mAP50(Mean Average Precision)
 
 Validation mAP와 Public LB score의 mAP를 align시키기 위해 train set과 validation set이 비슷한 class 비율을 가지도록 scikit-learn에서 제공하는 `Stratified Group K Fold`를 사용하였다. 초반에 실험할때는 Fold 0으로 실험을 진행하였고 성능이 좋은 단일모델이 나오면 다른 fold에 적용을 하여 추후 앙상블 단계에서 큰 성능 향상을 가져다주었다. 또한 평균적으로 20 epochs 이내에 overfitting이 발생한다는 것을 관찰하고 validation set없이 전체 fold에 대해서 훈련을 진행하였고 public LB에서도 좋은 결과를 보였다.
 
-### 1-stage  
+### 1-Stage  
+YOLOX, YOLOv5, EfficientDet, Universenet, TOOD, ATSS 등 다양한 1-stage 모델들을 시도해 보았다. mmdetection 라이브러리에 제공되지 않는 모델들이 많아서 해당 repository에서 코드를 가져와서 훈련을 진행하였다.
+
   | Detector     | Backbone        | Neck       | Optimizer | Scheduler       | 특이사항                   |
   |--------------|-----------------|------------|-----------|-----------------|----------------------------|
   | Universenet  | Res2Net         | FPN, SEPC  | SGD       | StepLR          |                            |
@@ -63,8 +65,6 @@ Validation mAP와 Public LB score의 mAP를 align시키기 위해 train set과 v
   | ATSS         | Swin-L          | FPN        | AdamW     | StepLR          | fp16                       |
   | UniverseNet  | Swin-L          | FPN, SEPC  | SGD       | StepLR          | fp16, grad_clip            |
   | TOOD         | ResNeXt, Swin-L | FPN        | AdamW     | CosineAnnealing |                            |
-
-YOLOX, YOLOv5, EfficientDet, Universenet, TOOD, ATSS 등 다양한 1-stage 모델들을 시도해 보았다. mmdetection 라이브러리에 제공되지 않는 모델들이 많아서 해당 repository에서 코드를 가져와서 훈련을 진행하였다.
 
 - **YOLOX & YOLOv5** | YOLOX와 YOLOv5는 다른 모델들에 비해서 비교적 학습시간이 오래 걸렸지만 2-stage 모델들보다 LB score가 그렇게 좋지 않았다. 하지만 2-stage 모델들보다 비교적 small object AP가 높아 앙상블할때 모델 다양성에 기여를 했다. 
 
@@ -75,7 +75,7 @@ YOLOX, YOLOv5, EfficientDet, Universenet, TOOD, ATSS 등 다양한 1-stage 모�
 - **TOOD** | 대회 후반부에 TOOD모델이 작은 물체에 대한 성능이 매우 좋다고 들어서 적용해봤고 시도한 모든 모델중에 small과 medium object에 대한 AP가 가장 높았다.
 
 
-### 2-stage
+### 2-Stage
   |     Detector                     |     Backbone           |     Neck                     |     Optimizer    |     Scheduler                    |     특이사항                                |
   |----------------------------------|------------------------|------------------------------|------------------|----------------------------------|---------------------------------------------|
   |     Faster-RCNN, Cascade-RCNN    |     Swin-L(224,384)    |     FPN, PAFPN, FPN_carafe    |     AdamW        |     StepLR, CosineAnnealingLR     |                                             |
@@ -137,41 +137,49 @@ Box ratio 와 area를 기반으로 outlier 를 제거했었는데 오히려 성�
 <br>
 
 ## Experiments
-| Index | Property | Name | LB Score |
-| --- | --- | --- | --- |
-| 1 | Single-2stage | Cascade R-CNN / Swin L / FPN / fold0 / inf 800 | 0.6177 |
-| 2 | Single-2stage | Cascade R-CNN / Swin L / FPN / fold0 / inf 1024 | 0.6205 |
-| 3 | Ensemble | 01 / 02 / inf 800, 1024 // nms 0.55 | 0.6423 |
-| 4 | Single-2stage | Cascade R-CNN / Swin L / PAFPN / fold1 / Train 1024 / inf 1024 | 0.6157 |
-| 5 | Single-2stage | Cascade R-CNN / Swin L / PAFPN / fold0 / Train 800 / inf 800 | 0.607 |
-| 6 | Single-2stage | Cascade R-CNN / Swin L / PAFPN / fold0 / Train 800 / inf 1024 | 0.6104 |
-| 7 | Ensemble | 01 / 02 / 05 / 06 // nms 055 | 0.6472 |
-| 8 | Ensemble | 01 / 02 / 05 / 06 / YoloX / WBF 0.55 skip 0.1 | 0.6324 |
-| 9 | Ensemble | 01 / 02 / 05 / 06 / YoloX / nms 0.55 | 0.6361 |
-| 10 | Ensemble | 14개 모델 / WBF 055, skip 0.1 | 0.6813 |
-| 11 | Ensemble | 16개 모델 / WBF 05, skip 0.08 | 0.685 |
-| 12 | Single-2stage | Cascade R-CNN / Swin L / FPN / fold1 / inf 1024 | - |
-| 13 | Single-2stage | Cascade R-CNN / Swin L / FPN / fold2 / inf 1024 | - |
-| 14 | Ensemble | 01 / 02 / 12-1 / 12-2 / 13 // nms 055 | 0.6539 |
-| 15 | Single-2stage | Faster_RCNN / Swin_L / FPN / fold0 / inf 512 | 0.5843 |
-| 16 | Single-2stage | Faster_RCNN / Swin_L / PAFPN / fold0 / inf 1024 | 0.6241 |
-| 17 | Single-2stage | Faster_RCNN / Swin_L / PAFPN / fold0 / inf 800 | - |
-| 18 | Ensemble | 22개 모델 / WBF 0.5, skip 0.1 | 0.6894 |
-| 19 | Ensemble | 23개 모델 / WBF 0.55, skip 0.1 | 0.6914 |
-| 20 | Ensemble | 23개 모델 / WBF 0.6, skip 0.1 | 0.6904 |
-| 21 | Ensemble | 23개 모델 / WBF 0.4, skip 0.1 | 0.6778 |
-| 22 | Ensemble | 23개 모델 / WBF 0.55, skip 0.08 | 0.6931 |
-| 23 | Ensemble | 23개 모델 / WBF 0.55, skip 0.06 | 0.6945 |
-| 24 | Single-2stage | Faster_RCNN / Swin_L / PAFPN / fold0 / inf1024 + outlier 제거  | 0.5962 |
-| 25 | Ensemble | Multi-stage Ensemble | 0.676 |
-| 26 | Ensemble | 25개 모델 / WBF 0.55, skip 0.1 / model_weights | 0.6931 |
-| 27 | Ensemble | 25개 모델 / WBF 0.55, skip 0.06 | - |
-| 28 | Ensemble | 27개 모델 / WBF 0.55, skip 0.05 | - |
-| 29 | Ensemble | 27개 모델 / WBF 0.55, skip 0.05 / model_weights | 0.6984 |
-| 30 | Single-1stage | Yolov5 | 0.5468 |
-| 31 | Single-1stage | Yolov5 | 0.5907 |
-| 32 | Single-1stage | ATSS / Swin-L / FPN | 0.5563 |
-| 33 | Single-2stage | Cascade R-CNN / Swin-L / FPN / bbox head / full | 0.6246 |
-| 34 | Single-2stage | Cascade R-CNN / Swin-L / FPN / focal loss / fold0 | 0.6243 |
-| 35 | Single-2stage | Cascade R-CNN / Swin-L / FPN / focal loss / full | 0.6368 |
-| 36 | Single-1stage | UniverseNet / Swin-L / FPN+SEPC / fold0 | 0.5684 |
+
+<details>
+<summary>LB 제출 기록</summary>
+<div markdown="1">
+  
+  | Index | Property | Name | LB Score |
+  | --- | --- | --- | --- |
+  | 1 | Single-2stage | Cascade R-CNN / Swin L / FPN / fold0 / inf 800 | 0.6177 |
+  | 2 | Single-2stage | Cascade R-CNN / Swin L / FPN / fold0 / inf 1024 | 0.6205 |
+  | 3 | Ensemble | 01 / 02 / inf 800, 1024 // nms 0.55 | 0.6423 |
+  | 4 | Single-2stage | Cascade R-CNN / Swin L / PAFPN / fold1 / Train 1024 / inf 1024 | 0.6157 |
+  | 5 | Single-2stage | Cascade R-CNN / Swin L / PAFPN / fold0 / Train 800 / inf 800 | 0.607 |
+  | 6 | Single-2stage | Cascade R-CNN / Swin L / PAFPN / fold0 / Train 800 / inf 1024 | 0.6104 |
+  | 7 | Ensemble | 01 / 02 / 05 / 06 // nms 055 | 0.6472 |
+  | 8 | Ensemble | 01 / 02 / 05 / 06 / YoloX / WBF 0.55 skip 0.1 | 0.6324 |
+  | 9 | Ensemble | 01 / 02 / 05 / 06 / YoloX / nms 0.55 | 0.6361 |
+  | 10 | Ensemble | 14개 모델 / WBF 055, skip 0.1 | 0.6813 |
+  | 11 | Ensemble | 16개 모델 / WBF 05, skip 0.08 | 0.685 |
+  | 12 | Single-2stage | Cascade R-CNN / Swin L / FPN / fold1 / inf 1024 | - |
+  | 13 | Single-2stage | Cascade R-CNN / Swin L / FPN / fold2 / inf 1024 | - |
+  | 14 | Ensemble | 01 / 02 / 12-1 / 12-2 / 13 // nms 055 | 0.6539 |
+  | 15 | Single-2stage | Faster_RCNN / Swin_L / FPN / fold0 / inf 512 | 0.5843 |
+  | 16 | Single-2stage | Faster_RCNN / Swin_L / PAFPN / fold0 / inf 1024 | 0.6241 |
+  | 17 | Single-2stage | Faster_RCNN / Swin_L / PAFPN / fold0 / inf 800 | - |
+  | 18 | Ensemble | 22개 모델 / WBF 0.5, skip 0.1 | 0.6894 |
+  | 19 | Ensemble | 23개 모델 / WBF 0.55, skip 0.1 | 0.6914 |
+  | 20 | Ensemble | 23개 모델 / WBF 0.6, skip 0.1 | 0.6904 |
+  | 21 | Ensemble | 23개 모델 / WBF 0.4, skip 0.1 | 0.6778 |
+  | 22 | Ensemble | 23개 모델 / WBF 0.55, skip 0.08 | 0.6931 |
+  | 23 | Ensemble | 23개 모델 / WBF 0.55, skip 0.06 | 0.6945 |
+  | 24 | Single-2stage | Faster_RCNN / Swin_L / PAFPN / fold0 / inf1024 + outlier 제거  | 0.5962 |
+  | 25 | Ensemble | Multi-stage Ensemble | 0.676 |
+  | 26 | Ensemble | 25개 모델 / WBF 0.55, skip 0.1 / model_weights | 0.6931 |
+  | 27 | Ensemble | 25개 모델 / WBF 0.55, skip 0.06 | - |
+  | 28 | Ensemble | 27개 모델 / WBF 0.55, skip 0.05 | - |
+  | 29 | Ensemble | 27개 모델 / WBF 0.55, skip 0.05 / model_weights | 0.6984 |
+  | 30 | Single-1stage | Yolov5 | 0.5468 |
+  | 31 | Single-1stage | Yolov5 | 0.5907 |
+  | 32 | Single-1stage | ATSS / Swin-L / FPN | 0.5563 |
+  | 33 | Single-2stage | Cascade R-CNN / Swin-L / FPN / bbox head / full | 0.6246 |
+  | 34 | Single-2stage | Cascade R-CNN / Swin-L / FPN / focal loss / fold0 | 0.6243 |
+  | 35 | Single-2stage | Cascade R-CNN / Swin-L / FPN / focal loss / full | 0.6368 |
+  | 36 | Single-1stage | UniverseNet / Swin-L / FPN+SEPC / fold0 | 0.5684 |
+
+</div>
+</details>
