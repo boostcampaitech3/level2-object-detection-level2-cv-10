@@ -55,6 +55,14 @@ Test set의 mAP50(Mean Average Precision)
 Validation mAP와 Public LB score의 mAP를 align시키기 위해 train set과 validation set이 비슷한 class 비율을 가지도록 scikit-learn에서 제공하는 `Stratified Group K Fold`를 사용하였다. 초반에 실험할때는 Fold 0으로 실험을 진행하였고 성능이 좋은 단일모델이 나오면 다른 fold에 적용을 하여 추후 앙상블 단계에서 큰 성능 향상을 가져다주었다. 또한 평균적으로 20 epochs 이내에 overfitting이 발생한다는 것을 관찰하고 validation set없이 전체 fold에 대해서 훈련을 진행하였고 public LB에서도 좋은 결과를 보였다.
 
 ### 1-stage  
+  | Detector     | Backbone        | Neck       | Optimizer | Scheduler       | 특이사항                   |
+  |--------------|-----------------|------------|-----------|-----------------|----------------------------|
+  | Universenet  | Res2Net         | FPN, SEPC  | SGD       | StepLR          |                            |
+  | Yolo X       | CSP-DarkNet     | YOLOXPAFPN | SGD       | stepLR          | AnchorFree                 |
+  | Yolo v5(xl6) | CSP-DarkNet     | SPPF       | SGD       | Lambda LR       | 1536X1536   inference, TTA |
+  | ATSS         | Swin-L          | FPN        | AdamW     | StepLR          | fp16                       |
+  | UniverseNet  | Swin-L          | FPN, SEPC  | SGD       | StepLR          | fp16, grad_clip            |
+  | TOOD         | ResNeXt, Swin-L | FPN        | AdamW     | CosineAnnealing |                            |
 
 YOLOX, YOLOv5, EfficientDet, Universenet, TOOD, ATSS 등 다양한 1-stage 모델들을 시도해 보았다. mmdetection 라이브러리에 제공되지 않는 모델들이 많아서 해당 repository에서 코드를 가져와서 훈련을 진행하였다.
 
@@ -68,6 +76,11 @@ YOLOX, YOLOv5, EfficientDet, Universenet, TOOD, ATSS 등 다양한 1-stage 모�
 
 
 ### 2-stage
+  |     Detector                     |     Backbone           |     Neck                     |     Optimizer    |     Scheduler                    |     특이사항                                |
+  |----------------------------------|------------------------|------------------------------|------------------|----------------------------------|---------------------------------------------|
+  |     Faster-RCNN, Cascade-RCNN    |     Swin-L(224,384)    |     FPN, PAFPN, FPN_carafe    |     AdamW        |     StepLR, CosineAnnealingLR     |                                             |
+  |     Cascade R-CNN                |     Swin-L             |     FPN, PAFPN, BiFPN        |     AdamW        |     StepLR, CosineAnnealingLR    |     Focal loss,   Shared4Conv1FCBBoxHead    |
+
 - **Backbone** | 주로 Swin Transformer를 사용했다. ResNet등 다른 backbone들을 시도해보았지만 트랜스포머 기반이 가장 성능이 우수했다. 
 
 - **Neck** | FPN, PAFPN, BiFPN 등을 시도했지만 성능 차이는 크지 않았다. 
