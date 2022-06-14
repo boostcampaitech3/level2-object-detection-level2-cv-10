@@ -1,5 +1,5 @@
 # [Lv2 P-Stage] Object Detection / #눈#사람
-> 📑 Wrapup Report 보러가기 [>> PDF]()
+> 📑 Wrapup Report [► PDF](https://github.com/boostcampaitech3/level2-object-detection-level2-cv-10/blob/main/Object%20Detection_CV_%E1%84%90%E1%85%B5%E1%86%B7%20%E1%84%85%E1%85%B5%E1%84%91%E1%85%A9%E1%84%90%E1%85%B3(10%E1%84%8C%E1%85%A9).pdf)
 
 ## Members
 | 김하준 | 송민수 | 심준교 | 유승리 | 이창진 | 전영우 |
