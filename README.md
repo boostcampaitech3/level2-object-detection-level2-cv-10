@@ -1,4 +1,4 @@
-# [Lv2 P-Stage] Object Detection :: #눈#사람
+# [Lv2 P-Stage] Object Detection / #눈#사람
 > 📑 Wrapup Report 보러가기 [>> PDF]()
 
 ## Members
@@ -12,6 +12,8 @@
 ## Competition : 재활용 품목 분류를 위한 Object Detection
 <img width="1084" alt="스크린샷 2022-06-14 오후 1 27 45" src="https://user-images.githubusercontent.com/43572543/173493348-3feef421-a95c-44b9-97cd-664530bf2e93.png">
 
+### Introduction
+
 바야흐로 대량 생산, 대량 소비의 시대. 우리는 많은 물건이 대량으로 생산되고, 소비되는 시대를 살고 있습니다. 하지만 이러한 문화는 '쓰레기 대란', '매립지 부족'과 같은 여러 사회 문제를 낳고 있습니다.
 
 분리수거는 이러한 환경 부담을 줄일 수 있는 방법 중 하나입니다. 잘 분리배출 된 쓰레기는 자원으로서 가치를 인정받아 재활용되지만, 잘못 분리배출 되면 그대로 폐기물로 분류되어 매립 또는 소각되기 때문입니다.
@@ -19,6 +21,10 @@
 따라서 우리는 사진에서 쓰레기를 Detection 하는 모델을 만들어 이러한 문제점을 해결해보고자 합니다. 문제 해결을 위한 데이터셋으로는 일반 쓰레기, 플라스틱, 종이, 유리 등 10 종류의 쓰레기가 찍힌 사진 데이터셋이 제공됩니다.
 
 여러분에 의해 만들어진 우수한 성능의 모델은 쓰레기장에 설치되어 정확한 분리수거를 돕거나, 어린아이들의 분리수거 교육 등에 사용될 수 있을 것입니다. 부디 지구를 위기로부터 구해주세요! 🌎
+
+### Metric
+
+Test set의 mAP50(Mean Average Precision)
 
 <br>
 
@@ -94,6 +100,17 @@ Yolo v5 가 상당한 성능이 나왔음에도 앙상블 결과 큰 성능향�
 WBF 앙상블에서 주로 `iou_threshold`와 `score_threshold`를 바꿔주면서 실험을 진행하였는데 다음 대회에서는 random seed, snapshot ensemble, SWA등 조금 더 다양한 앙상블 기법들을 시도해 볼 것이다. 
 
 Box ratio 와 area를 기반으로 outlier 를 제거했었는데 오히려 성능이 떨어졌었다. 해당 사유를 정확하게 파악하지 못해서 아쉽다.
+
+<br>
+
+## LB Score Chart
+
+<img width="369" alt="image" src="https://user-images.githubusercontent.com/43572543/173495756-488f65b3-cfd0-43c7-9029-8386c7cbacb2.png">
+
+### Final LB Score
+- **[Public]** mAP: 0.7026 (8위) 
+- **[Private]** mAP: 0.6881 (8위)
+
 
 <br>
 
